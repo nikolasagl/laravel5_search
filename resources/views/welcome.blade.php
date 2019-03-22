@@ -25,6 +25,10 @@
             .header {
               margin-top:100px;
             }
+
+            .footer {
+              margin-bottom: 25px;
+            }
         </style>
     </head>
     <body>
@@ -32,91 +36,66 @@
       <div class="card header">
 
         <div class="card-header">
-          <p><i class="fas fa-search"></i> Buscar</p>
+          <h1><i class="fas fa-search"></i> Buscar</h1>
         </div>
 
         <div class="card-body">
-          <div class="row">
 
-            <div class="input-group col-md-4">
-              <div class="input-group-prepend">
-                <span class="input-group-text">
-                  <i class="fas fa-user"></i>
-                </span>
+          <form id="filterForm" action="{{ url('/search') }}">
+
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+            <div class="row">
+
+              <div class="input-group col-md-4">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="fas fa-user"></i>
+                  </span>
+                </div>
+
+                <input class="form-control nome" type="text" name="nome" value="" placeholder="Nome | CPF | Email">
               </div>
 
-              <input class="form-control" type="text" name="nome" value="" placeholder="Nome | CPF | Email">
-            </div>
+              <div class="input-group col-md-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="fas fa-calendar-alt"></i>
+                  </span>
+                </div>
 
-            <div class="input-group col-md-4">
-              <div class="input-group-prepend">
-                <span class="input-group-text">
-                  <i class="fas fa-calendar-alt"></i>
-                </span>
+                <input class="form-control data_inicio" type="text" name="data_inicio" value="" placeholder="Data Inicio">
               </div>
 
-              <input class="form-control" type="text" name="data_inicio" value="" placeholder="Data Inicio">
-            </div>
+              <div class="input-group col-md-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="fas fa-calendar-alt"></i>
+                  </span>
+                </div>
 
-            <div class="input-group col-md-4">
-              <div class="input-group-prepend">
-                <span class="input-group-text">
-                  <i class="fas fa-calendar-alt"></i>
-                </span>
+                <input class="form-control data_fim" type="text" name="data_fim" value="" placeholder="Data Fim">
               </div>
 
-              <input class="form-control" type="text" name="data_dim" value="" placeholder="Data Fim">
+              <button class="col-md-2 btn btn-dark" id="filterFormSubmit" type="submit" name="filterFormSubmit">Buscar</button>
+
             </div>
 
-          </div>
+          </form>
+
         </div>
 
       </div>
+
+      <br>
 
       <div class="card content">
 
-        <div class="card-header">
-          <h1>Tabela</h1>
-        </div>
-
-        <div class="card-body">
-          <div class="table-responsive">
-            <table id="tabela" class="table table-sm table-collapse table-hover table-striped table-bordered">
-
-              <thead class="thead-dark">
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Nome</th>
-                  <th scope="col">CPF</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Data Nascimento</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                @foreach ($data as $key => $individuo)
-                  <tr>
-                    <th scope="row">{{ $individuo->id }}</th>
-                    <td>{{ ucwords(mb_strtolower($individuo->nome)) }}</td>
-                    <td>{{ $individuo->cpf }}</td>
-                    <td>{{ $individuo->email }}</td>
-                    <td>{{ $individuo->data_nascimento }}</td>
-                  </tr>
-                @endforeach
-              </tbody>
-
-            </table>
-
-            <div class="text-center text-secondary border-top py-3">
-              <h5>Paginação</h5>
-            </div>
-
-            {{ $data->links() }}
-
-          </div>
-        </div>
+        @include('table')
 
       </div>
+
+      <br>
 
       <div class="card footer">
         <h1>footer</h1>
@@ -127,9 +106,31 @@
       <script src="{{ asset('resources/assets/plugins/fontawesome/js/all.min.js') }}"></script>
 
       <script type="text/javascript">
-        $(document).ready(function() {
-          $('#tabela').DataTable()
+        $(document).ready(function(e) {
+          $('.data_inicio').mask('99/99/9999')
+          $('.data_fim').mask('99/99/9999')
         })
       </script>
+
+      <script type="text/javascript">
+        $('#filterFormSubmit').click(function(e) {
+          e.preventDefault()
+
+          var url = $('#filterForm').attr('action')
+          $.ajax({
+            url: url,
+            data: {
+              nome: $('.nome').val(),
+              data_inicio: $('.data_inicio').val(),
+              data_fim: $('.data_fim').val()
+            },
+            success: function(data) {
+              console.log(data);
+              $('.content').html(data)
+            }
+          })
+        })
+      </script>
+
     </body>
 </html>
